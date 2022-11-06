@@ -18,7 +18,7 @@ resource "google_secret_manager_secret" "secret" {
       dynamic "replicas" {
         for_each = var.locations
         content {
-          location = replicas.key
+          location = replicas.value
         }
       }
     }
