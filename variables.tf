@@ -61,11 +61,6 @@ variable "ignore_new_versions" {
   default = true
 }
 
-variable "automatic" {
-  type = bool
-  default = true
-}
-
 variable "locations" {
   type = list(string)
   default = []

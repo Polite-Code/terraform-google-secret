@@ -14,7 +14,6 @@ resource "google_secret_manager_secret" "secret" {
 
 
   replication {
-    automatic = var.automatic
     user_managed {
       dynamic "replicas" {
         for_each = var.locations
