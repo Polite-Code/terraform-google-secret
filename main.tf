@@ -11,8 +11,18 @@ resource "google_project_service" "secretmanager" {
 resource "google_secret_manager_secret" "secret" {
   project = var.project_id
   secret_id = var.secret_id
+
+
   replication {
-    automatic = true
+    automatic = var.automatic
+    user_managed {
+      dynamic "replicas" {
+        for_each = var.locations
+        content {
+          location = replicas.key
+        }
+      }
+    }
   }
 
   depends_on = [
