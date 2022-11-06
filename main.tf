@@ -4,12 +4,20 @@ terraform {
   }
 }
 
+resource "google_project_service" "secretmanager" {
+  service = "secretmanager.googleapis.com"
+}
+
 resource "google_secret_manager_secret" "secret" {
   project = var.project_id
   secret_id = var.secret_id
   replication {
     automatic = true
   }
+
+  depends_on = [
+    google_project_service.secretmanager
+  ]
 }
 
 resource "google_secret_manager_secret_version" "secret" {
@@ -19,6 +27,10 @@ resource "google_secret_manager_secret_version" "secret" {
   lifecycle {
     ignore_changes =  all  # TODO: conditonal
   }
+
+  depends_on = [
+    google_project_service.secretmanager
+  ]
 }
 
 resource "google_secret_manager_secret_iam_member" "secret" {
