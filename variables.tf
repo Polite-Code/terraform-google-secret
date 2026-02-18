@@ -1,9 +1,11 @@
 variable "project_id" {
   type = string
+
   validation {
     condition     = can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", var.project_id))
-    error_message = "The project_id must be a string of alphanumeric or hyphens, between 6 and 3o characters in length."
+    error_message = "The project_id must contain alphanumeric characters or hyphens and be between 6 and 30 characters long."
   }
+
   description = <<EOD
 The GCP project identifier where the secret will be created.
 EOD
@@ -11,22 +13,27 @@ EOD
 
 variable "secret_id" {
   type = string
+
   validation {
     condition     = can(regex("^[a-zA-Z0-9_-]{1,255}$", var.secret_id))
-    error_message = "The secret id must be a string of alphanumeric, hyphen, and underscore characters, and upto 255 characters in length."
+    error_message = "The secret_id must contain alphanumeric, hyphen, and underscore characters, up to 255 characters long."
   }
+
   description = <<EOD
 The secret identifier to create; this value must be unique within the project.
 EOD
 }
 
 variable "secret_value" {
-  type        = string
+  type      = string
+  default   = null
+  nullable  = true
   sensitive = true
+
   description = <<EOD
-The secret payload to store in Secret Manager; if blank or null a versioned secret
-value will NOT be created and must be populated outside of this module. Binary
-values should be base64 encoded before use.
+The secret payload to store in Secret Manager. If null or blank, a secret version
+will NOT be created and must be populated outside this module. Binary values should
+be base64-encoded before use.
 EOD
 }
 
@@ -57,11 +64,26 @@ EOD
 }
 
 variable "ignore_new_versions" {
-  type = bool
-  default = true
+  type    = bool
+  default = false
+
+  description = <<EOD
+If true, updates to secret_value are ignored after the initial version is created.
+If false, updates to secret_value create new secret versions.
+EOD
 }
 
 variable "locations" {
-  type = list(string)
+  type    = list(string)
   default = []
+
+  validation {
+    condition     = alltrue([for location in var.locations : trimspace(location) != ""])
+    error_message = "Each location must be a non-empty region string."
+  }
+
+  description = <<EOD
+Optional replication regions for user-managed replication. If empty, replication
+defaults to automatic.
+EOD
 }
